@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+.ipynb_checkpoints/
+*.py[cod]
+
+.env
+.venv/
+venv/
+
+checkpoints/
+local_dataset/
+local_models/
+output/
+wandb/

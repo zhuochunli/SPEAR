@@ -1,0 +1,13 @@
+accelerate
+datasets
+math-verify
+numpy
+openai
+peft
+spacy
+torch
+tqdm
+transformers
+trl
+wandb
+
