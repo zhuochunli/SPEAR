@@ -6,7 +6,7 @@
 - `sft.py`: supervised fine-tuning.
 - `rl.py`: unified GRPO, Dr. GRPO, and DAPO training entry point.
 - `grpo.py`, `dr_grpo.py`, `dapo.py`: standalone training scripts.
-- `reward.py`: format, answer-accuracy, and reasoning-alignment rewards.
+- `reward.py`: format, answer-accuracy, and order-aware LCS-F1 reasoning rewards.
 - `test.py`: model evaluation.
 - `collect_teacher_res.py`: teacher-rationale collection through the DeepSeek API.
 - `data.py`, `utils.py`, `all_prompts.py`: data and prompt utilities.
@@ -56,6 +56,17 @@ python rl.py \
 
 Use `--algorithm dr_grpo` or `--algorithm dapo` for the other objectives.
 Pass `--baseline` to use only format and answer-accuracy rewards.
+
+The reasoning reward is the F1 score of the longest common subsequence (LCS)
+between the teacher and student anchor trajectories:
+
+```text
+R_reason = 2 * |LCS(A_s, A_t)| / (|A_s| + |A_t|)
+```
+
+This balances teacher-milestone recall with student-trajectory precision: missing
+teacher milestones and unsupported or repetitive student milestones both reduce
+the reward.
 
 Evaluation:
 

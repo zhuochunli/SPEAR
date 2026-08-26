@@ -79,6 +79,18 @@ def get_lcs_length(seq1, seq2):
     return dp[m][n]
 
 
+def get_lcs_f1_score(teacher_seq, student_seq):
+    """Return the LCS-F1 score for two non-token reasoning trajectories."""
+    if not teacher_seq or not student_seq:
+        return 0.0
+    lcs_len = get_lcs_length(teacher_seq, student_seq)
+    precision = lcs_len / len(student_seq)
+    recall = lcs_len / len(teacher_seq)
+    if precision + recall == 0:
+        return 0.0
+    return 2 * precision * recall / (precision + recall)
+
+
 MATH_OPS = re.compile(
     r'\b(multiply|divide|subtract|add|sum|total|average|percent|'
     r'ratio|compute|calculate|simplify|solve|equal|let|assume|'
@@ -255,18 +267,9 @@ def reasoning_reward(completions, **kwargs):
             rewards.append(0.0)
             continue
 
-        lcs_len = get_lcs_length(t_seq, s_seq)
-
-        # LCS-F1: harmonic mean of precision and recall over anchor sequences
-        # recall    = lcs_len / len(t_seq)
-        precision = lcs_len / len(s_seq)
-
-        # if precision + recall == 0:
-        #     reward = 0.0
-        # else:
-        #     reward = 2 * precision * recall / (precision + recall)
-
-        rewards.append(min(precision, 1.0))
+        # LCS-F1 penalizes both missing teacher milestones (recall) and
+        # unsupported or repetitive student milestones (precision).
+        rewards.append(get_lcs_f1_score(t_seq, s_seq))
 
     return rewards
 
