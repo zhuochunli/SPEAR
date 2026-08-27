@@ -25,11 +25,11 @@ train_parser.add_argument('--algorithm', default='grpo', choices=["grpo", "dr_gr
                           help="grpo: standard GRPO\ndr_grpo: Dr. GRPO (length + difficulty bias fix)\ndapo: DAPO loss")
 train_parser.add_argument('--learning_rate', '-lr', default=5e-6, type=float)
 # train_parser.add_argument('--max_prompt_length', default=256, type=int)
-train_parser.add_argument('--max_comp_length', default=1024, type=int)
+train_parser.add_argument('--max_comp_length', default=2048, type=int)
 train_parser.add_argument('--epochs', '-e', default=1, type=int)
 train_parser.add_argument('--batch_size', '-bs', default=8, type=int)
 train_parser.add_argument('--beta', default=0.04, type=float)
-train_parser.add_argument('--seed', type=int, default=42)
+train_parser.add_argument('--seed', type=int, default=731)
 train_parser.add_argument('--baseline', action='store_true', help='Use format + accuracy rewards only')
 args = train_parser.parse_args()
 
@@ -96,8 +96,8 @@ class CustomTrainer:
         dataset = rl_preprocess_dataset(args.answer_path, args.task_type, args.seed)
         dataset = dataset.map(rl_make_conversation)
         dataset = dataset.map(lambda x: {"task_type": args.task_type})
-        # GPQA: 0.03 for eval, ~1000 training samples
-        split_dataset = dataset.train_test_split(test_size=0.03 if args.task_type == 'gpqa' else 0.01, seed=args.seed)
+        # Reserve 5% of the training data for development/model selection.
+        split_dataset = dataset.train_test_split(test_size=0.05, seed=args.seed)
 
         if args.lora_path:
             model = PeftModel.from_pretrained(model, args.lora_path, is_trainable=True)

@@ -25,11 +25,11 @@ train_parser.add_argument('--output_path', '-op', default="checkpoints/gold_llam
 train_parser.add_argument('--task_type', default='gsm8k', choices=["gsm8k", "math", "gpqa", "commonsenseQA"], help='the type of reasoning task')
 train_parser.add_argument('--learning_rate', '-lr', default=1e-5, type=float, help='learning rate')
 train_parser.add_argument('--max_prompt_length', default=256, type=int, help='max prompt length')
-train_parser.add_argument('--max_comp_length', default=1024, type=int, help='max completion length')
+train_parser.add_argument('--max_comp_length', default=2048, type=int, help='max completion length')
 train_parser.add_argument('--epochs', '-e', default=1, type=int, help="num_train_epochs")
 train_parser.add_argument('--batch_size', '-bs', default=16, type=int, help="batch size")
 train_parser.add_argument('--beta', default=0.1, type=float, help="beta value for DAPO (standard is 0.1)")
-train_parser.add_argument('--seed', type=int, default=42, help='seed setting')
+train_parser.add_argument('--seed', type=int, default=731, help='seed setting')
 train_parser.add_argument('--baseline', action='store_true', help='If true, use format + accuracy rewards only')
 args = train_parser.parse_args()
 
@@ -72,9 +72,8 @@ class CustomTrainer:
         # Ensure task_type is available in the batch for the reward function
         dataset = dataset.map(lambda x: {"task_type": args.task_type})
         
-        # Split the dataset (e.g., 99% train, 1% test)
-        # Split the dataset (e.g., 95% train, 5% test) for gpqa
-        split_dataset = dataset.train_test_split(test_size=0.01, seed=args.seed)
+        # Reserve 5% of the training data for development/model selection.
+        split_dataset = dataset.train_test_split(test_size=0.05, seed=args.seed)
         
         if args.lora_path:
             model = PeftModel.from_pretrained(model, args.lora_path, is_trainable=True)

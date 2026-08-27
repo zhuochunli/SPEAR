@@ -25,7 +25,7 @@ train_parser.add_argument('--task_type', default='gsm8k', choices=["gsm8k", "mat
 train_parser.add_argument('--rewards', nargs='+', choices=["format", "accuracy", "self_consistency_reward", "document", "sentence", "cue_word"], default=["format", "accuracy"], help="select rewards function")
 train_parser.add_argument('--learning_rate', '-lr', default=5e-6, type=float, help='learning rate')
 train_parser.add_argument('--max_prompt_length', default=128, type=int, help='max prompt length')
-train_parser.add_argument('--max_comp_length', default=256, type=int, help='max completion length')
+train_parser.add_argument('--max_comp_length', default=2048, type=int, help='max completion length')
 train_parser.add_argument('--epochs', '-e', default=1, type=int, help="num_train_epochs")
 train_parser.add_argument('--batch_size', '-bs', default=8, type=int, help="batch size")
 train_parser.add_argument('--beta', default=0.04, type=float, help="beta value")
@@ -79,9 +79,8 @@ class CustomTrainer:
         dataset = dataset.map(rl_make_conversation)
         dataset = dataset.map(lambda x: {"task_type": args.task_type})
         
-        # Split the dataset (e.g., 99% train, 1% test)
-        # Split the dataset (e.g., 95% train, 5% test) for gpqa
-        split_dataset = dataset.train_test_split(test_size=0.01, seed=args.seed)
+        # Reserve 5% of the training data for development/model selection.
+        split_dataset = dataset.train_test_split(test_size=0.05, seed=args.seed)
         train_ds = split_dataset["train"]
         eval_ds = split_dataset["test"]
         
@@ -118,7 +117,7 @@ class CustomTrainer:
 
             num_generations=8,  # default: 8
             # max_prompt_length=args.max_prompt_length,  # no longer exists in TRL 0.29.0
-            max_completion_length=args.max_comp_length,  # default: 256
+            max_completion_length=args.max_comp_length,  # default: 2048
             seed=args.seed,
             run_name=args.output_path,
             report_to=["wandb"],

@@ -56,6 +56,9 @@ python rl.py \
 
 Use `--algorithm dr_grpo` or `--algorithm dapo` for the other objectives.
 Pass `--baseline` to use only format and answer-accuracy rewards.
+All training entry points default to random seed 731, reserve 5% of the
+training data for development/model selection, and allow up to 2048 completion
+tokens during RL training.
 
 The reasoning reward is the F1 score of the longest common subsequence (LCS)
 between the teacher and student anchor trajectories:

@@ -30,9 +30,9 @@ def load_json_dataset(jsonl_path):
 
 def preprocess_dataset(json_path, seed):
     dataset = load_json_dataset(json_path)
-    # Shuffle and split (90% train, 10% validation)
+    # Shuffle and split (95% train, 5% validation)
     shuffled_data = dataset.shuffle(seed=seed)
-    split_idx = int(0.9 * len(shuffled_data))
+    split_idx = int(0.95 * len(shuffled_data))
 
     dataset_dict = DatasetDict({
         "train": Dataset.from_dict(shuffled_data[:split_idx]),
