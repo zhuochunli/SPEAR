@@ -56,12 +56,8 @@ python rl.py \
 
 Use `--algorithm dr_grpo` or `--algorithm dapo` for the other objectives.
 Pass `--baseline` to use only format and answer-accuracy rewards.
-All training entry points default to random seed 731, reserve 5% of the
-training data for development/model selection, and allow up to 2048 completion
-tokens during RL training.
 
-The reasoning reward is the F1 score of the longest common subsequence (LCS)
-between the teacher and student anchor trajectories:
+The reasoning reward is the F1 score of the longest common subsequence (LCS) between the teacher and student anchor trajectories:
 
 ```text
 R_reason = 2 * |LCS(A_s, A_t)| / (|A_s| + |A_t|)
@@ -79,10 +75,6 @@ python test.py \
   --lora_path checkpoints/spear-grpo \
   --dataset gsm8k
 ```
-
-Each script supports `--help` for its full set of options. Training requires a
-CUDA-capable environment with bfloat16 support; memory requirements depend on
-the selected model and batch size.
 
 <!-- ## Citation
 
