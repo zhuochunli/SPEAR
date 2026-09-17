@@ -5,7 +5,7 @@ from utils import verify_preds
 
 
 # Note: You must run `python -m spacy download en_core_web_sm` first.
-nlp = spacy.load("en_core_web_sm", disable=["lemmatizer", "textcat"])
+nlp = spacy.load("en_core_web_sm", disable=["textcat"])
 
 MAX_ANCHORS = 100  # Bounds LCS complexity to O(100x100) per sample
 
@@ -163,7 +163,7 @@ def extract_anchors(content, task_type):
     - math/gsm8k : LaTeX expressions and variable assignments
                    (bare numbers excluded — too noisy for LCS alignment)
     - gpqa        : Verb-Object relational triples from NER + dependency parse
-    - others      : Noun chunk roots and their governing verbs
+    - others      : Noun chunk roots paired with their governing verbs
     Sequences are truncated to MAX_ANCHORS to keep LCS tractable.
     """
     if not content:
@@ -226,9 +226,13 @@ def extract_anchors(content, task_type):
         doc = nlp(content)
         for chunk in doc.noun_chunks:
             if len(chunk.root.text) > 2:
-                anchors.append(chunk.root.text.lower())
+                # anchors.append(chunk.root.text.lower())
+                # if chunk.root.head.pos_ == "VERB":
+                #     anchors.append(chunk.root.head.lemma_)
                 if chunk.root.head.pos_ == "VERB":
-                    anchors.append(chunk.root.head.lemma_)
+                    anchors.append((chunk.root.text.lower(), chunk.root.head.lemma_))
+                else:
+                    anchors.append(chunk.root.text.lower())
 
     return anchors[:MAX_ANCHORS]
 
